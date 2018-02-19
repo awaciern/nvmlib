@@ -10,7 +10,7 @@
 //5. pool_root does not incorporate size
 //6. OIDs do not have different address values between pools
 //7. Freeing an OID leads to a skipped offest number
-//8. Still writes to actual C file when pool out of OIDs
+//8. Still writes to actual C file when pool out of OIDs - FIXED
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -150,7 +150,7 @@ void pfree(OID oid)
 //Write to a file (using traditional C FILE structure) and pool (using OID storage)
 void pwritef(pool* p, const char* string)
 {
-	fprintf(p->file_ptr, string); //writes to file
+	//fprintf(p->file_ptr, string); //writes to file
 	
 	OID * tmp = p->root;
 	while (tmp->data != '\0') //cycles to first OID of the pool with no data
@@ -175,10 +175,8 @@ void pwritef(pool* p, const char* string)
 		int sl = strlen(string);
 		for (i = 0; i < sl; i++)
 		{
-			tmp->data = string[i];
-			/*char* str_char = "";
-			sprintf(str_char, "%c", string[i]);
-			fprintf(p->file_ptr, str_char);*/
+			tmp->data = string[i]; //writes char to OID
+			fprintf(p->file_ptr, "%c", string[i]); //writes char to file
 			if (tmp->next == NULL)
 			{
 				printf("ERROR: Not enough space in pool. Stopped writng to pool at string index %d\n", i);	
