@@ -6,33 +6,32 @@
 //1. OID and OID Linked List not seperate structs
 //2. pool_open uses pointer to pool rather than name
 //3. Files and OID structure are operating in parallel, not together
-//4. Getting File data into OIDs?
+//4. Getting File data into OIDs? - ONLY CHARS RIGHT NOW
 //5. pool_root does not incorporate size
 //6. OIDs do not have different address values between pools
 //7. Freeing an OID leads to a skipped offest number
 //8. Still writes to actual C file when pool out of OIDs - FIXED
+//9. OIDs can only store chars -> model only works for text files
+//10. Does not open and close pools/OIDs (only C files)
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
 
-//STRUCT DEFINITIONS
 
-/* //For an ObjectID
-typedef struct oid_def
-{
-	int data;
-	int offset; //offset from root OID of pool
-} OID; */
+/**********************************************************************************************/
+
+
+//STRUCT DEFINITIONS
 
 //For a linked list of OIDs
 typedef struct oid
 {
-	char data;
+	char data; //holds data
 	int offset; //offset from root OID of pool
 	struct oid * next;
-	struct pool * pool;
+	struct pool * pool; //pool identifier for OID
 } OID;
 
 //For a pool
@@ -43,6 +42,9 @@ typedef struct pool
 	OID * root; //Linked list of OIDs starting at root OID
 	int size; //# of objects in pool
 } pool;
+
+
+/**********************************************************************************************/
 
 
 //POOL MANAGEMENT
@@ -58,7 +60,7 @@ pool* pool_create(const char* name, int size)
 	p->size = size; //sets pool size (# of objects);
 	
 	p->root = malloc(sizeof(OID)); //allocate root OID for the pool
-	p->root->offset = 0;
+	p->root->offset = 0; //fills in OID struct fields
 	p->root->next = NULL;
 	p->root->pool = p;
 	
@@ -96,6 +98,9 @@ OID pool_root(pool* p) //, int size)
 {
 	return *(p->root);
 }
+
+
+/**********************************************************************************************/
 
 
 //OBJECT MANAGEMENT
@@ -141,21 +146,22 @@ void pfree(OID oid)
 	
 	tmp->next = tmp->next->next; //skips the pool about to be freed in LL
 	
-	free(tmp->next);
+	free(tmp->next); //frees specified OID
 }
 
 
-//READING AND WRITING:
+/**********************************************************************************************/
+
+
+//READING AND WRITING
 
 //Write to a file (using traditional C FILE structure) and pool (using OID storage)
 void pwritef(pool* p, const char* string)
 {
-	//fprintf(p->file_ptr, string); //writes to file
-	
 	OID * tmp = p->root;
 	while (tmp->data != '\0') //cycles to first OID of the pool with no data
 	{
-		if (tmp->next == NULL)
+		if (tmp->next == NULL) //identifies if pool already full
 		{
 			break;
 		}
@@ -165,7 +171,7 @@ void pwritef(pool* p, const char* string)
 		}
 	}
 	
-	if (tmp->next == NULL)
+	if (tmp->next == NULL) //pool already full exception
 	{
 		printf("ERROR: Pool already full!\n");
 	}
@@ -173,11 +179,11 @@ void pwritef(pool* p, const char* string)
 	{
 		int i;
 		int sl = strlen(string);
-		for (i = 0; i < sl; i++)
+		for (i = 0; i < sl; i++) //cycles through each char of string
 		{
 			tmp->data = string[i]; //writes char to OID
 			fprintf(p->file_ptr, "%c", string[i]); //writes char to file
-			if (tmp->next == NULL)
+			if (tmp->next == NULL) //not enough space in pool exception
 			{
 				printf("ERROR: Not enough space in pool. Stopped writng to pool at string index %d\n", i);	
 				break;			
@@ -193,20 +199,21 @@ void pwritef(pool* p, const char* string)
 //Read a file (using traditional C FILE structure) and pool (using OID storage)
 void preadf(pool* p)
 {
-	printf("TRADITIONAL C FILE STRUCTURE:\n");
+	printf("TRADITIONAL C FILE STRUCTURE:\n"); 
 	char c;
-	c = fgetc(p->file_ptr);
+	c = fgetc(p->file_ptr); //prints contents of C file
 	while (c != EOF)
 	{
 		printf("%c", c);
 		c = fgetc(p->file_ptr);
 	}
+	printf("n");
 	
 	printf("POOL OID STRUCTURE:\n");
 	OID * tmp = p->root;
 	int i = 0;
 	c = tmp->data;
-	while (c != '\0')
+	while (c != '\0') //prints contents of OIDs
 	{
 		printf("%c", c);
 		i++;
@@ -215,7 +222,7 @@ void preadf(pool* p)
 			tmp = tmp->next;
 			c = tmp->data;
 		}
-		else
+		else //pool out of space exit condition
 		{
 			break;
 		}
