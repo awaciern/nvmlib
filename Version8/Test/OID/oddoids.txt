@@ -1,0 +1,15 @@
+int data: 1
+int data: 2
+int data: 3
+int data: 4
+int data: 5
+int data: 6
+int data: 7
+int data: 8
+int data: 9
+int data: 10
+oidptr: pool:pool1 offset:0
+oidptr: pool:pool1 offset:2
+oidptr: pool:pool1 offset:4
+oidptr: pool:pool1 offset:6
+oidptr: pool:pool1 offset:8

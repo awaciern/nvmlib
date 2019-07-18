@@ -1,0 +1,20 @@
+int data: 25
+int data: 50
+int data: 75
+int data: 175
+int data: 200
+int data: 225
+int data: 250
+int data: 275
+int data: 300
+int data: 325
+int data: 350
+int data: 375
+int data: 400
+int data: 425
+int data: 450
+int data: 475
+abcde
+I added this line with pwritestr!
+This line is from a txt file!
+This line is also from a txt file!!!

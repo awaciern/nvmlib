@@ -1,0 +1,5 @@
+oidptr: pool:pool1 offset:1
+oidptr: pool:pool1 offset:3
+oidptr: pool:pool1 offset:5
+oidptr: pool:pool1 offset:7
+oidptr: pool:pool1 offset:9
